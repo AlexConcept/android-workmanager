@@ -28,6 +28,8 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.background.workers.BlurWorker
+import com.example.background.workers.CleanupWorker
+import com.example.background.workers.SaveImageToFileWorker
 
 
 class BlurViewModel(application: Application) : ViewModel() {
@@ -46,20 +48,27 @@ class BlurViewModel(application: Application) : ViewModel() {
      * @param blurLevel The amount to blur the image
      */
     internal fun applyBlur(blurLevel: Int) {
-        val blurRequest = OneTimeWorkRequestBuilder<BlurWorker>()
+        var continuation = workManager
+            .beginWith(OneTimeWorkRequest.from(CleanupWorker::class.java))
+
+        val  blurRequest = OneTimeWorkRequest.Builder(BlurWorker::class.java)
             .setInputData(createInputDataForUri())
             .build()
 
-        workManager.enqueue(blurRequest)
+        val save = OneTimeWorkRequest.Builder(SaveImageToFileWorker::class.java).build()
+        continuation = continuation.then(save)
+
+        continuation.enqueue()
     }
+
 
     @SuppressLint("SuspiciousIndentation")
     private fun createInputDataForUri(): Data {
-    val builder = Data.Builder()
+        val builder = Data.Builder()
         imageUri?.let {
             builder.putString(KEY_IMAGE_URI, imageUri.toString())
         }
-            return builder.build()
+        return builder.build()
     }
 
     private fun uriOrNull(uriString: String?): Uri? {
@@ -98,3 +107,4 @@ class BlurViewModel(application: Application) : ViewModel() {
         }
     }
 }
+

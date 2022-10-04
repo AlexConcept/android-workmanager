@@ -14,11 +14,14 @@ import com.example.background.KEY_IMAGE_URI
 import com.example.background.R
 
 class BlurWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params) {
+
     override fun doWork(): Result {
         val appContext = applicationContext
         makeStatusNotification("Blurring image", appContext)
 
         val resourceUri = inputData.getString(KEY_IMAGE_URI)
+
+        sleep()
 
         return try {
            val picture = BitmapFactory.decodeStream(appContext.contentResolver.openInputStream(Uri.parse(resourceUri)))

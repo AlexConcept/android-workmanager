@@ -20,7 +20,9 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.work.WorkInfo
 import com.example.background.databinding.ActivityBlurBinding
+import androidx.lifecycle.Observer
 
 class BlurActivity : AppCompatActivity() {
 
@@ -31,13 +33,30 @@ class BlurActivity : AppCompatActivity() {
     }
     private lateinit var binding: ActivityBlurBinding
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityBlurBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        viewModel.outputWorkInfos.observe(this, workInfosObserver())
         binding.goButton.setOnClickListener { viewModel.applyBlur(blurLevel) }
     }
+
+    fun workInfosObserver(): Observer<List<WorkInfo>> {
+        return Observer { listOfWorkInfo ->
+            if (listOfWorkInfo.isNullOrEmpty()) {
+            return@Observer
+            }
+            val workInfo = listOfWorkInfo[0]
+
+            if (workInfo.state.isFinished) {
+                showWorkFinished()
+            } else {
+                showWorkInProgress()
+            }
+        }
+    }
+
 
     /**
      * Shows and hides views for when the Activity is processing an image

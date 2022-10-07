@@ -16,7 +16,6 @@
 
 package com.example.background
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -49,6 +48,7 @@ class BlurActivity : AppCompatActivity() {
                 }
             }
         }
+        binding.cancelButton.setOnClickListener { viewModel.cancelWork() }
         viewModel.outputWorkInfos.observe(this, workInfosObserver())
     }
 

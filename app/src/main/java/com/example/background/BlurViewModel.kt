@@ -16,7 +16,6 @@
 
 package com.example.background
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ContentResolver
 import android.content.Context
@@ -72,9 +71,7 @@ class BlurViewModel(application: Application) : ViewModel() {
         continuation.enqueue()
     }
 
-
-    @SuppressLint("SuspiciousIndentation")
-    private fun createInputDataForUri(): Data {
+      private fun createInputDataForUri(): Data {
         val builder = Data.Builder()
         imageUri?.let {
             builder.putString(KEY_IMAGE_URI, imageUri.toString())
@@ -105,6 +102,10 @@ class BlurViewModel(application: Application) : ViewModel() {
 
     internal fun setOutputUri(outputImageUri: String?) {
         outputUri = uriOrNull(outputImageUri)
+    }
+
+    internal fun cancelWork() {
+        workManager.cancelUniqueWork(IMAGE_MANIPULATION_WORK_NAME)
     }
 
     class BlurViewModelFactory(private val application: Application) : ViewModelProvider.Factory {

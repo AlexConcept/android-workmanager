@@ -64,14 +64,21 @@ class BlurViewModel(application: Application) : ViewModel() {
             continuation = continuation.then(blurBuilder.build())
         }
 
-        val save =
-            OneTimeWorkRequestBuilder<SaveImageToFileWorker>().addTag(TAG_OUTPUT).build()
-        continuation = continuation.then(save)
+        val constraints = Constraints.Builder()
+            .setRequiresStorageNotLow(true)
+            .setRequiresCharging(true)
+            .build()
 
+        val save =
+            OneTimeWorkRequestBuilder<SaveImageToFileWorker>()
+                .setConstraints(constraints)
+                .addTag(TAG_OUTPUT)
+                .build()
+        continuation = continuation.then(save)
         continuation.enqueue()
     }
 
-      private fun createInputDataForUri(): Data {
+    private fun createInputDataForUri(): Data {
         val builder = Data.Builder()
         imageUri?.let {
             builder.putString(KEY_IMAGE_URI, imageUri.toString())
@@ -110,7 +117,7 @@ class BlurViewModel(application: Application) : ViewModel() {
 
     class BlurViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
 
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return if (modelClass.isAssignableFrom(BlurViewModel::class.java)) {
                 BlurViewModel(application) as T
             } else {
